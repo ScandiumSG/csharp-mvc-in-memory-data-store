@@ -2,6 +2,8 @@ using exercise.wwwapi.Controller;
 using exercise.wwwapi.Data;
 using exercise.wwwapi.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using exercise.wwwapi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ProductContext>(opt => opt.UseInMemoryDatabase("ProductDb"));
 builder.Services.AddScoped<IRepository, ProductRepository>();
 
+builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,6 +28,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
 
 app.ConfigureProductsEndpoint();
 

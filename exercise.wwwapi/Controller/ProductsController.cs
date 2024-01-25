@@ -19,15 +19,21 @@ namespace exercise.wwwapi.Controller
 
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public static async Task<IResult> PostProduct(IRepository repository, string name, string category, int price)
+        public static async Task<IResult> PostProduct(IRepository repository, ProductPost prodPost)
         {
-            if ((name == null) || (category == null)) 
+            if (!int.TryParse(prodPost.Price.ToString(), out _))
+            {
+                // Throw a BadHttpRequestException with appropriate message
+                throw new BadHttpRequestException("Id must be an integer value.", StatusCodes.Status400BadRequest);
+            }
+
+            if ((prodPost.Name == null) || (prodPost.Category == null)) 
             {
                 return TypedResults.BadRequest("Name and/or category must be provided.");
             }
 
-            Product? prod = repository.PostProduct(new ProductPost(name, category, price));
-            if (price < 0) // Int will never not be int. That will never happen. Checking for positive int instead
+            Product? prod = repository.PostProduct(prodPost);
+            if (prodPost.Price < 0) // Int will never not be int. That will never happen. Checking for positive int instead
             {
                 return TypedResults.BadRequest("Price must be an integer, larger than 0, something else was provided.");
             }
